@@ -1,0 +1,180 @@
+<!-- login.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EcoBudget — Connexion</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .auth-page { min-height: 100vh; display: grid; place-items: center; padding: 24px 16px; }
+    .auth-card { width: 100%; max-width: 420px; padding: 32px 28px 28px; background: var(--surface); border: 1px solid var(--border); border-radius: 22px; box-shadow: 0 20px 60px rgba(0,0,0,.18); }
+    .auth-brand { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 22px; font-size: 26px; font-weight: 600; letter-spacing: -.5px; }
+    .auth-brand svg { width: 30px; height: 30px; color: var(--yellow); }
+    .auth-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; margin-bottom: 22px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 14px; }
+    .auth-tabs[hidden] { display: none; }
+    .auth-tab { min-height: 40px; border: 0; border-radius: 10px; background: transparent; color: var(--muted); font-weight: 500; }
+    .auth-tab[aria-selected="true"] { background: var(--yellow); color: #111; font-weight: 600; }
+    .auth-title { margin: 0 0 4px; font-size: 20px; font-weight: 600; }
+    .auth-sub { margin: 0 0 20px; color: var(--muted); font-size: 13px; }
+    .auth-form { display: grid; gap: 14px; }
+    .auth-form label { display: grid; gap: 6px; font-size: 13px; font-weight: 500; }
+    .auth-form .opt { color: var(--muted); font-weight: 400; font-size: 11px; }
+    .auth-form input { width: 100%; min-height: 48px; padding: 0 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-2); color: var(--text); font-size: 15px; }
+    .auth-form input::placeholder { opacity: .5; }
+    .password-field { position: relative; }
+    .password-field input { padding-right: 82px; }
+    .password-toggle { position: absolute; top: 50%; right: 8px; transform: translateY(-50%); min-height: 32px; padding: 0 10px; border: 0; border-radius: 8px; background: transparent; color: var(--muted); font-size: 12px; }
+    .password-toggle:hover { color: var(--text); }
+    .auth-hint { margin: -6px 0 0; color: var(--muted); font-size: 11px; }
+    .auth-error { min-height: 18px; margin: 0; color: var(--danger); font-size: 13px; }
+    .auth-form .primary-button { width: 100%; min-height: 50px; font-size: 15px; border-radius: 14px; }
+    .auth-foot { margin: 18px 0 0; text-align: center; color: var(--muted); font-size: 12px; }
+    .auth-foot button { padding: 0; border: 0; background: none; color: var(--yellow); font-weight: 600; text-decoration: underline; }
+    :root[data-theme="light"] .auth-card { background: #fff; box-shadow: 0 20px 60px rgba(20,30,45,.12); }
+    :root[data-theme="light"] .auth-form input { background: #f8f9fb; border-color: #d7dde5; color: #202733; }
+    :root[data-theme="light"] .auth-tab[aria-selected="true"] { background: #e5ad32; color: #1b1b1b; }
+    :root[data-theme="light"] .auth-brand svg { color: #c4901f; }
+    :root[data-theme="light"] .auth-foot button { color: #a87414; }
+  </style>
+</head>
+<body>
+  <main class="auth-page">
+    <section class="auth-card" aria-labelledby="authTitle">
+      <div class="auth-brand">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+        <span>EcoBudget</span>
+      </div>
+
+      <div class="auth-tabs" id="authTabs" role="tablist" aria-label="Connexion ou inscription">
+        <button type="button" class="auth-tab" role="tab" id="tabLogin" data-mode="login" aria-selected="true">Connexion</button>
+        <button type="button" class="auth-tab" role="tab" id="tabSignup" data-mode="signup" aria-selected="false">Inscription</button>
+      </div>
+
+      <h1 class="auth-title" id="authTitle">Bon retour !</h1>
+      <p class="auth-sub" id="authSub">Connectez-vous pour retrouver votre budget.</p>
+
+      <form class="auth-form" id="authForm" novalidate>
+        <label id="nameField" hidden>
+          <span>Nom affiché <span class="opt">(facultatif)</span></span>
+          <input id="name" type="text" maxlength="40" autocomplete="name" placeholder="Ex. Amine Benali">
+        </label>
+        <label>
+          <span>Identifiant</span>
+          <input id="username" type="text" maxlength="40" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="Ex. amine.benali" required>
+        </label>
+        <label>
+          <span>Mot de passe</span>
+          <span class="password-field">
+            <input id="password" type="password" maxlength="200" autocomplete="current-password" placeholder="••••••••" required>
+            <button type="button" class="password-toggle" id="passwordToggle" aria-label="Afficher le mot de passe">Afficher</button>
+          </span>
+        </label>
+        <p class="auth-hint" id="passwordHint" hidden>8 caractères minimum.</p>
+        <label id="confirmField" hidden>
+          <span>Confirmer le mot de passe</span>
+          <input id="confirm" type="password" maxlength="200" autocomplete="new-password" placeholder="••••••••">
+        </label>
+        <p class="auth-error" id="authError" role="alert"></p>
+        <button class="primary-button" type="submit" id="authSubmit">Se connecter</button>
+      </form>
+
+      <p class="auth-foot" id="authFoot"></p>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      'use strict';
+      const $ = (id) => document.getElementById(id);
+      let mode = 'login';
+      let signupOpen = true;
+      let busy = false;
+
+      // Thème : suit celui du système (le thème choisi dans l'app est enregistré dans vos données, après connexion)
+      const dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+
+      function setMode(next) {
+        if (next === 'signup' && !signupOpen) next = 'login';
+        mode = next;
+        const signup = mode === 'signup';
+        $('tabLogin').setAttribute('aria-selected', String(!signup));
+        $('tabSignup').setAttribute('aria-selected', String(signup));
+        $('authTitle').textContent = signup ? 'Créer un compte' : 'Bon retour !';
+        $('authSub').textContent = signup ? 'Vos données seront stockées séparément pour chaque compte.' : 'Connectez-vous pour retrouver votre budget.';
+        $('authSubmit').textContent = signup ? 'Créer mon compte' : 'Se connecter';
+        $('nameField').hidden = !signup;
+        $('confirmField').hidden = !signup;
+        $('passwordHint').hidden = !signup;
+        $('password').autocomplete = signup ? 'new-password' : 'current-password';
+        $('authError').textContent = '';
+        $('authFoot').innerHTML = '';
+        if (signupOpen) {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.textContent = signup ? 'Se connecter' : 'Créer un compte';
+          button.addEventListener('click', () => setMode(signup ? 'login' : 'signup'));
+          $('authFoot').append(signup ? 'Déjà un compte ? ' : 'Pas encore de compte ? ', button);
+        }
+      }
+
+      async function submit(event) {
+        event.preventDefault();
+        if (busy) return;
+        const username = $('username').value.trim();
+        const password = $('password').value;
+        const signup = mode === 'signup';
+        $('authError').textContent = '';
+        if (!username || !password) { $('authError').textContent = 'Renseignez votre identifiant et votre mot de passe.'; return; }
+        if (signup) {
+          if (password.length < 8) { $('authError').textContent = 'Le mot de passe doit contenir au moins 8 caractères.'; return; }
+          if (password !== $('confirm').value) { $('authError').textContent = 'Les mots de passe ne correspondent pas.'; return; }
+        }
+        busy = true;
+        $('authSubmit').disabled = true;
+        try {
+          const response = await fetch(signup ? '/api/auth/register' : '/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(signup ? { username, password, name: $('name').value.trim() } : { username, password })
+          });
+          const data = await response.json().catch(() => ({}));
+          if (!response.ok) throw new Error(data.error || 'Une erreur est survenue.');
+          location.replace('/');
+        } catch (error) {
+          $('authError').textContent = error instanceof TypeError ? 'Serveur injoignable. Vérifiez qu’il est démarré.' : error.message;
+          busy = false;
+          $('authSubmit').disabled = false;
+        }
+      }
+
+      $('authForm').addEventListener('submit', submit);
+      $('tabLogin').addEventListener('click', () => setMode('login'));
+      $('tabSignup').addEventListener('click', () => setMode('signup'));
+      $('passwordToggle').addEventListener('click', () => {
+        const hidden = $('password').type === 'password';
+        $('password').type = hidden ? 'text' : 'password';
+        $('confirm').type = hidden ? 'text' : 'password';
+        $('passwordToggle').textContent = hidden ? 'Masquer' : 'Afficher';
+        $('passwordToggle').setAttribute('aria-label', hidden ? 'Masquer le mot de passe' : 'Afficher le mot de passe');
+      });
+
+      (async () => {
+        try {
+          const config = await (await fetch('/api/auth/config', { cache: 'no-store' })).json();
+          signupOpen = Boolean(config.signupOpen);
+          $('authTabs').hidden = !signupOpen;
+          setMode(config.firstUser ? 'signup' : 'login'); // aucun compte encore : on propose directement de créer le premier
+        } catch {
+          setMode('login');
+        }
+        $('username').focus();
+      })();
+    })();
+  </script>
+</body>
+</html>

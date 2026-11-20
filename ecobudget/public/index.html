@@ -1,0 +1,483 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="EcoBudget — application personnelle de gestion de budget et d'épargne">
+  <meta name="theme-color" content="#121212" id="themeColorMeta">
+  <title>EcoBudget — Gestion de budget</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="#accueil" data-page="home" aria-label="EcoBudget accueil">
+        <span class="brand-icon"><i data-lucide="leaf"></i></span><span>EcoBudget</span>
+      </a>
+      <nav class="side-nav" aria-label="Navigation principale">
+        <button class="nav-link active" data-page="home"><i data-lucide="house"></i><span>Tableau de bord</span></button>
+        <button class="nav-link" data-page="expenses"><i data-lucide="wallet"></i><span>Transactions</span></button>
+        <button class="nav-link" data-page="savings"><i data-lucide="piggy-bank"></i><span>Épargne</span></button>
+        <button class="nav-link" data-page="budget"><i data-lucide="chart-pie"></i><span>Budget</span></button>
+        <button class="nav-link" data-page="stats"><i data-lucide="chart-no-axes-combined"></i><span>Statistiques</span></button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="sidebar-quote">
+          <strong>Un budget maîtrisé, c’est l’esprit tranquille</strong>
+          <i data-lucide="sprout"></i>
+        </div>
+        <button class="nav-link" id="settingsNav"><i data-lucide="settings-2"></i><span>Paramètres</span></button>
+        <button class="nav-link" id="logoutNav" type="button"><i data-lucide="log-out"></i><span>Se déconnecter</span></button>
+      </div>
+    </aside>
+
+    <section class="workspace">
+      <header class="topbar">
+        <label class="period-control" id="periodControl"><span>Période</span><input type="month" id="monthFilter" aria-label="Période affichée"></label>
+        <div class="top-actions">
+          <button class="icon-button theme-toggle" id="themeToggle" type="button" aria-label="Activer le mode clair" title="Changer de thème"><i data-lucide="sun"></i></button>
+          <button class="icon-button notification-button" id="notificationsButton" aria-label="Voir les notifications"><i data-lucide="bell"></i><span class="notification-dot" id="notificationDot" hidden></span></button>
+          <button class="avatar" id="profileButton" aria-label="Ouvrir les paramètres du profil">AR</button>
+        </div>
+      </header>
+
+      <div class="content-grid">
+        <main class="main-content" id="mainContent">
+          <!-- ACCUEIL -->
+          <section class="page active" id="page-home" aria-labelledby="homeTitle">
+            <div class="welcome-row">
+              <div><h1 id="homeTitle">Bonjour, <strong>Alif Reza</strong></h1><p>Consultez et gérez vos finances ici !</p></div>
+              <button class="primary-button has-tip" id="addTransactionHome" data-tip="Enregistrez une dépense (argent qui sort : courses, loyer…) ou un revenu (argent qui entre : salaire, prime…)."><i data-lucide="plus"></i> Ajouter une transaction</button>
+            </div>
+            <div class="overview-cards">
+              <button type="button" class="overview-card balance-card" data-page="expenses" aria-label="Voir les transactions"><div class="card-label">Solde actuel</div><small data-period></small><strong id="homeBalance">0 DA</strong></button>
+              <button type="button" class="overview-card income-card" data-page="expenses" aria-label="Voir les transactions"><div class="card-label">Total des revenus</div><small data-period></small><strong id="homeIncome">0 DA</strong></button>
+              <button type="button" class="overview-card expense-card" data-page="expenses" aria-label="Voir les transactions"><div class="card-label">Total des dépenses</div><small data-period></small><strong id="homeExpenses">0 DA</strong></button>
+            </div>
+
+            <section class="dashboard-kpis" aria-label="Indicateurs du tableau de bord">
+              <article class="dashboard-kpi"><div class="kpi-head"><span class="kpi-icon green"><i data-lucide="coins"></i></span><small>Argent non affecté</small></div><strong id="homeUnallocated">0 DA</strong><div class="kpi-bar"><span class="static"></span></div><small class="kpi-detail" id="homeUnallocatedDetail"></small></article>
+              <article class="dashboard-kpi"><div class="kpi-head"><span class="kpi-icon blue"><i data-lucide="piggy-bank"></i></span><small>Progression de l’épargne</small></div><strong id="homeSavingsProgress">0 %</strong><div class="kpi-bar"><span id="homeSavingsBar"></span></div><small class="kpi-detail" id="homeSavingsDetail">Aucun objectif actif</small></article>
+            </section>
+
+            <section class="panel budget-summary-panel">
+              <div class="panel-heading"><h2>Mon budget</h2><button class="text-link" data-page="budget">Voir plus <i data-lucide="arrow-right"></i></button></div>
+              <div class="budget-summary-content">
+                <div class="gauge-wrap" aria-label="Pourcentage du budget utilisé">
+                  <svg class="gauge" viewBox="0 0 260 160" role="img" aria-hidden="true">
+                    <path class="gauge-track" d="M25 140 A105 105 0 0 1 235 140"></path>
+                    <path class="gauge-value" id="homeGauge" d="M25 140 A105 105 0 0 1 235 140"></path>
+                  </svg>
+                  <strong id="homeGaugePercent">0 %</strong><span>dépensé</span>
+                </div>
+                <div class="budget-summary-details">
+                  <small>Budget du mois (optionnel)</small><strong id="homeBudgetAmount">Aucun budget</strong>
+                  <div class="legend-line"><span><i class="legend-dot coral"></i>Dépenses</span><b id="homeSpentPercent">0 %</b></div>
+                  <div class="legend-line"><span><i class="legend-dot purple"></i>Restants</span><b id="homeRemainingPercent">100 %</b></div>
+                  <button class="primary-button compact" data-page="budget">Gérer le budget</button>
+                  <p class="muted small" id="homeBudgetHint">Aucun budget : comparaison avec l’argent non affecté.</p>
+                </div>
+              </div>
+            </section>
+
+            <section class="panel home-comparison">
+              <div class="panel-heading"><h2>Revenus et dépenses</h2><button class="text-link" data-page="stats">Voir les statistiques <i data-lucide="arrow-right"></i></button></div>
+              <div id="homeIncomeExpense" class="comparison-bars"></div>
+            </section>
+          </section>
+
+          <!-- DEPENSES / TRANSACTIONS -->
+          <section class="page" id="page-expenses" aria-labelledby="expensesTitle">
+            <div class="page-title-row"><div><h1 id="expensesTitle">Dépenses et revenus</h1><p class="muted">Consultez et gérez vos transactions.</p></div><button class="primary-button has-tip" id="addTransactionExpenses" data-tip="Enregistrez une dépense (argent qui sort : courses, loyer…) ou un revenu (argent qui entre : salaire, prime…)."><i data-lucide="plus"></i> Ajouter une transaction</button></div>
+            <div class="stats-kpis" id="expenseKpis"></div>
+            <section class="panel unusual-panel">
+              <div class="panel-heading"><div><h2><i data-lucide="shield-alert"></i> Dépenses inhabituelles</h2><p class="muted">Si une dépense inhabituelle est détectée, elle sera affichée ici.</p></div><span class="completed-count" id="unusualCount">0</span></div>
+              <div id="unusualTransactions" class="unusual-list"></div>
+              <p class="empty-state" id="unusualEmpty">Aucune dépense inhabituelle détectée pour le moment.</p>
+            </section>
+            <section class="panel list-panel">
+              <div class="panel-heading"><h2>Transactions</h2><span class="completed-count" id="transactionCount">0</span></div>
+              <div class="toolbar">
+                <select id="expenseTypeFilter" aria-label="Choisir un type">
+                  <option value="Tous">Choisissez un type…</option>
+                  <option value="Dépense">Dépenses</option>
+                  <option value="Revenu">Revenus</option>
+                </select>
+                <select id="expenseEntryFilter" aria-label="Filtrer par catégorie ou source" disabled>
+                  <option value="Tous">Choisissez un type d'abord</option>
+                </select>
+                <input id="expenseDateFilter" type="date" aria-label="Filtrer par date" title="Filtrer par date">
+                <button class="secondary-button" type="button" id="clearExpenseFilters" hidden>Réinitialiser</button>
+                <button class="secondary-button" id="exportCsv"><i data-lucide="download"></i> Exporter CSV</button>
+              </div>
+              <div class="table-wrap"><table><thead><tr><th>Date</th><th>Type</th><th>Catégorie / Source</th><th>Description</th><th>Montant</th><th>Actions</th></tr></thead><tbody id="transactionsTable"></tbody></table></div>
+              <p class="empty-state" id="transactionsEmpty">Aucune transaction à afficher.</p>
+              <nav class="pager" id="transactionPager" aria-label="Pages des transactions" hidden>
+                <button type="button" class="pager-arrow" id="pagePrev" aria-label="Page précédente"><i data-lucide="chevron-left"></i></button>
+                <span class="pager-info" id="pageInfo" aria-live="polite">Page 1 / 1</span>
+                <button type="button" class="pager-arrow" id="pageNext" aria-label="Page suivante"><i data-lucide="chevron-right"></i></button>
+              </nav>
+            </section>
+          </section>
+
+          <!-- EPARGNE -->
+          <!-- EPARGNE -->
+          <section class="page" id="page-savings" aria-labelledby="savingsTitle">
+            <div class="page-title-row">
+              <div>
+                <h1 id="savingsTitle">Mes objectifs d’épargne</h1>
+                <p class="muted">Épargnes en cours en haut, suivies des épargnes terminées.</p>
+              </div>
+              <button class="primary-button" id="createGoal"><i data-lucide="plus"></i> Nouvel objectif</button>
+            </div>
+
+            <div class="savings-overview" id="savingsOverview"></div>
+            <section class="panel savings-summary" id="savingsSummary"></section>
+
+            <!-- 1. Épargnes non terminées -->
+            <section class="goals-section" id="activeGoalsSection">
+              <div class="section-subheading">
+                <div>
+                  <h2>Épargnes en cours</h2>
+                  <p class="muted">Objectifs non terminés avec détail de l’avancement.</p>
+                </div>
+              </div>
+              <div id="goalsByCategory"></div>
+              <p class="empty-state" id="goalsEmpty">Aucune épargne en cours.</p>
+            </section>
+
+            <!-- 2. Épargnes terminées -->
+            <section class="goals-section completed-section" id="completedGoalsSection">
+              <div class="section-subheading">
+                <div>
+                  <h2><i data-lucide="badge-check"></i> Épargnes terminées</h2>
+                  <p class="muted">Objectifs entièrement atteints.</p>
+                </div>
+                <span class="completed-count" id="completedGoalsCount">0 terminée</span>
+              </div>
+              <div class="goal-grid" id="completedGoalsGrid"></div>
+              <p class="empty-state" id="completedGoalsEmpty">Aucune épargne terminée pour le moment.</p>
+            </section>
+          </section>
+
+          <!-- BUDGET -->
+          <section class="page" id="page-budget" aria-labelledby="budgetTitle">
+            <div class="page-title-row">
+              <div>
+                <h1 id="budgetTitle">Gestion du budget</h1>
+                <p class="muted">Choisissez un mode pour <span data-period>ce mois</span>.</p>
+              </div>
+            </div>
+
+            <!-- Choix du mode -->
+            <section class="panel budget-mode-panel" aria-label="Choix du mode de budget">
+              <div class="panel-heading">
+                <div>
+                  <h2>Mode de budget</h2>
+                </div>
+              </div>
+
+              <div class="budget-mode-cards" role="radiogroup" aria-label="Mode de budget">
+                <button type="button" class="mode-card" id="modeNoneBtn" data-budget-mode="none" aria-checked="false">
+                  <div class="mode-card-head">
+                    <strong>Aucun budget</strong>
+                  </div>
+                  <p>Comparaison avec l’argent non affecté.</p>
+                </button>
+
+                <button type="button" class="mode-card active" id="modeGlobalBtn" data-budget-mode="global" aria-checked="true">
+                  <div class="mode-card-head">
+                    <strong>Mensuel seul</strong>
+                  </div>
+                  <p>Une enveloppe unique pour le mois.</p>
+                </button>
+
+                <button type="button" class="mode-card" id="modeCategoryBtn" data-budget-mode="category" aria-checked="false">
+                  <div class="mode-card-head">
+                    <strong>Catégories seules</strong>
+                  </div>
+                  <p>Une limite par catégorie, sans total mensuel.</p>
+                </button>
+
+                <button type="button" class="mode-card" id="modeMixedBtn" data-budget-mode="mixed" aria-checked="false">
+                  <div class="mode-card-head">
+                    <strong>Mensuel + catégories</strong>
+                  </div>
+                  <p>Un budget mensuel réparti entre vos catégories, avec le reste à répartir.</p>
+                </button>
+              </div>
+
+              <div class="budget-mode-guide" id="budgetModeGuide"></div>
+            </section>
+
+            <!-- KPIs dynamiques selon le mode -->
+            <div class="budget-kpis" id="budgetKpis">
+              <div id="budgetPlannedCard"><small>Budget prévu</small><strong id="budgetPlannedKpi">0 DA</strong></div>
+              <div id="budgetRemainingCard"><small id="budgetRemainingLabel">Montant restant</small><strong id="budgetRemainingKpi">0 DA</strong></div>
+              <div id="budgetActualCard"><small>Dépenses du mois</small><strong id="budgetActualKpi">0 DA</strong></div>
+            </div>
+
+            <!-- Contenu : Aucun budget -->
+            <section class="panel no-budget-panel" id="noBudgetPanel" hidden>
+              <div class="panel-heading">
+                <div>
+                  <h2>Suivi sans budget</h2>
+                  <p class="muted">Vos dépenses sont comparées directement à votre argent non affecté.</p>
+                </div>
+                <i data-lucide="coins" class="panel-icon"></i>
+              </div>
+              <div class="budget-insights" id="noBudgetSummary"></div>
+            </section>
+
+            <!-- Contenu : Budget mensuel global -->
+            <section class="panel budget-config" id="globalBudgetPanel">
+              <div class="panel-heading">
+                <div>
+                  <h2 id="globalBudgetTitle">Budget mensuel global</h2>
+                </div>
+                <i data-lucide="wallet-cards" class="panel-icon"></i>
+              </div>
+              <form id="monthlyBudgetForm" class="inline-form">
+                <label for="monthlyBudgetInput">Montant mensuel (DA) <span class="req" title="Obligatoire" aria-hidden="true">*</span></label>
+                <div class="amount-field">
+                  <input id="monthlyBudgetInput" type="number" min="0" step="100" placeholder="Ex. 50000 (budget du mois)" required>
+                  <span>DA</span>
+                </div>
+                <button class="primary-button" type="submit" id="monthlyBudgetSubmit">Enregistrer</button>
+                <button class="danger-button" type="button" id="clearMonthlyBudget" hidden>Supprimer</button>
+                <small class="field-hint" id="globalBudgetHint">Champ obligatoire · vérifié avec l’argent non affecté. Saisissez 0 pour supprimer le budget.</small>
+              </form>
+              <div id="globalBudgetTracking">
+                <div class="progress-track large"><span id="budgetProgressBar"></span></div>
+                <div class="progress-caption">
+                  <span id="budgetProgressLabel">0 %</span>
+                  <span id="budgetStatusLabel"></span>
+                </div>
+                <div id="budgetAlert" class="alert-box" role="status" hidden></div>
+              </div>
+            </section>
+
+            <!-- Contenu : Budgets par catégorie -->
+            <section class="panel" id="categoryBudgetPanel">
+              <div class="panel-heading">
+                <div>
+                  <h2 id="categoryBudgetTitle">Budgets par catégorie</h2>
+                </div>
+                <div class="panel-actions-inline">
+                  <button class="secondary-button compact" type="button" id="clearAllCategoryLimits" hidden>Tout effacer</button>
+                  <button class="primary-button compact" type="button" id="addCategoryLimit"><i data-lucide="plus"></i> Ajouter</button>
+                </div>
+              </div>
+              <div class="allocation-summary" id="allocationSummary" hidden>
+                <div class="budget-insights">
+                  <div class="insight"><small>Budget mensuel</small><strong id="allocMonthly">0 DA</strong><span>Enveloppe du mois</span></div>
+                  <div class="insight"><small>Déjà réparti</small><strong id="allocUsed">0 DA</strong><span>Somme des catégories</span></div>
+                  <div class="insight" id="allocRemainingBox"><small>Reste à répartir</small><strong id="allocRemaining">0 DA</strong><span id="allocRemainingNote"></span></div>
+                </div>
+                <div class="progress-track large alloc-track"><span id="allocBar"></span></div>
+              </div>
+              <div class="category-limits" id="categoryLimits"></div>
+              <p class="empty-state" id="limitsEmpty">Aucun budget par catégorie.</p>
+            </section>
+
+            <section class="panel" id="budgetComparisonPanel">
+              <div class="panel-heading">
+                <div>
+                  <h2>Prévu vs réel</h2>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr><th>Catégorie</th><th>Budget prévu</th><th>Dépenses réelles</th><th>Écart</th><th>Utilisation</th><th>État</th></tr>
+                  </thead>
+                  <tbody id="budgetComparisonTable"></tbody>
+                </table>
+              </div>
+              <p class="empty-state" id="comparisonEmpty">Aucune donnée à afficher.</p>
+            </section>
+          </section>
+
+          <!-- STATISTIQUES -->
+          <section class="page" id="page-stats" aria-labelledby="statsTitle">
+            <div class="page-title-row"><div><h1 id="statsTitle">Statistiques et rapports</h1><p class="muted">Analysez vos habitudes financières · <span id="statsPeriodLabel"></span></p></div>
+              <div class="range-toggle" role="group" aria-label="Période des statistiques">
+                <button type="button" class="range-option active" data-range="month" aria-pressed="true">Mois</button>
+                <button type="button" class="range-option" data-range="quarter" aria-pressed="false">3 derniers mois</button>
+                <button type="button" class="range-option" data-range="year" aria-pressed="false">Année</button>
+              </div></div>
+            <div class="stats-kpis" id="statsKpis"></div>
+            <div class="stats-grid">
+              <section class="panel"><div class="panel-heading"><h2>Dépenses par catégorie</h2></div><div class="donut-layout"><div class="donut-chart" id="categoryDonut"><span id="donutTotal">0 DA</span></div><div class="donut-legend" id="categoryLegend"></div></div><p class="empty-state" id="categoryChartEmpty">Aucune dépense sur cette période.</p></section>
+              <section class="panel"><div class="panel-heading"><h2>Revenus / dépenses</h2></div><div class="income-expense-chart" id="incomeExpenseChart"></div><p class="empty-state" id="incomeExpenseEmpty">Ajoutez des revenus et des dépenses pour voir la comparaison.</p></section>
+              <section class="panel stats-wide"><div class="panel-heading"><h2>Évolution des dépenses par mois</h2><small class="muted" id="monthlyChartSubtitle">6 derniers mois</small></div><div class="monthly-chart" id="monthlyExpenseChart"></div></section>
+            </div>
+          </section>
+
+          <!-- PARAMETRES -->
+          <section class="page" id="page-settings" aria-labelledby="settingsTitle">
+            <div class="page-title-row"><div><h1 id="settingsTitle">Paramètres</h1><p class="muted">Personnalisez votre espace EcoBudget.</p></div></div>
+            <section class="panel"><div class="panel-heading"><div><h2>Compte</h2><p class="muted">Connecté en tant que <strong id="accountName">—</strong></p></div></div>
+              <div class="setting-row"><div><strong>Déconnexion</strong><p class="muted">Fermez votre session sur cet appareil.</p></div><button class="secondary-button" id="logoutButton" type="button"><i data-lucide="log-out"></i> Se déconnecter</button></div></section>
+            <section class="panel"><div class="panel-heading"><div><h2>Profil</h2><p class="muted">Le nom affiché dans le message d’accueil.</p></div></div>
+              <form id="profileForm" class="settings-form"><label for="profileName">Nom affiché <span class="req" title="Obligatoire" aria-hidden="true">*</span></label><input id="profileName" maxlength="40" required placeholder="Ex. Amine Benali"><button class="primary-button" type="submit">Enregistrer le profil</button></form></section>
+            <section class="panel"><div class="panel-heading"><div><h2>Mes données</h2><p class="muted">Elles sont stockées sur le serveur, dans un fichier propre à votre compte.</p></div></div>
+              <div class="setting-row"><div><strong>Sauvegarde</strong><p class="muted">Téléchargez une copie de toutes vos données au format JSON.</p></div><button class="secondary-button" id="backupJson"><i data-lucide="file-down"></i> Télécharger la sauvegarde</button></div>
+              <div class="setting-row"><div><strong>Réinitialisation</strong><p class="muted">Efface les transactions, budgets, limites et objectifs. Action irréversible.</p></div><button class="danger-button" id="resetData"><i data-lucide="trash-2"></i> Réinitialiser</button></div></section>
+          </section>
+        </main>
+
+        <aside class="recent-sidebar" id="recentSidebar" aria-label="Transactions récentes et alertes">
+          
+          <section class="sidebar-section alert-panel">
+            <div class="recent-heading"><h2><i data-lucide="bell-ring"></i> Alertes</h2><span class="alert-count" id="alertCount">0</span></div>
+            <div id="recentAlert" class="alert-list"><p class="sidebar-empty">Aucune alerte pour cette période.</p></div>
+          </section>
+          <section class="sidebar-section">
+            <div class="recent-heading"><h2>Transactions récentes</h2><button class="text-link" data-page="expenses">Voir tout <i data-lucide="arrow-right"></i></button></div>
+            <div id="recentTransactions" class="recent-list"></div>
+            <p class="empty-state" id="recentEmpty">Aucune transaction pour ce mois.</p>
+          </section>
+        </aside>
+      </div>
+    </section>
+  </div>
+
+  <!-- Formulaire transaction -->
+  <dialog class="modal" id="transactionDialog"><form id="transactionForm" method="dialog">
+    <div class="modal-heading"><div><h2 id="transactionDialogTitle">Ajouter une transaction</h2></div><button type="button" class="close-button" data-close="transactionDialog" aria-label="Fermer"><i data-lucide="x"></i></button></div>
+    <input type="hidden" id="transactionId">
+    <div class="field-group"><span class="field-label">Type <span class="req" title="Obligatoire" aria-hidden="true">*</span></span>
+      <input type="hidden" id="transactionType" value="Dépense">
+      <div class="type-toggle" role="group" aria-label="Type de transaction">
+        <button type="button" class="type-option active expense has-tip" data-tip="Dépense : de l’argent qui sort (courses, loyer, transport…)" data-type="Dépense" aria-pressed="true"><i data-lucide="arrow-down-right"></i> Dépense</button>
+        <button type="button" class="type-option income has-tip" data-tip="Revenu : de l’argent qui entre (salaire, prime, cadeau…)" data-type="Revenu" aria-pressed="false"><i data-lucide="arrow-up-right"></i> Revenu</button>
+      </div>
+    </div>
+    <div class="field-group"><span class="field-label" id="categoryPickerLabel">Catégorie <span class="req" title="Obligatoire" aria-hidden="true">*</span></span>
+      <input type="hidden" id="transactionCategory">
+      <div class="category-picker" id="categoryPicker" role="radiogroup" aria-labelledby="categoryPickerLabel"></div>
+      <div class="new-category" id="newCategoryPanel" hidden>
+        <strong id="newCategoryTitle">Nouvelle catégorie</strong>
+        <div class="new-category-row">
+          <button type="button" class="icon-upload" id="newCategoryIconButton" aria-label="Importer une icône" title="Importer une icône">
+            <span id="newCategoryIconPreview"><i data-lucide="image-plus"></i></span>
+          </button>
+          <input type="text" id="newCategoryName" maxlength="24" placeholder="Ex. Abonnements" aria-label="Nom de la catégorie (obligatoire)">
+        </div>
+        <input type="file" id="newCategoryIconFile" accept="image/*" hidden>
+        <small class="field-hint"><span class="req" title="Obligatoire" aria-hidden="true">*</span> Nom et icône obligatoires. Importez une image (PNG, JPG, SVG…) comme icône.</small>
+        <div class="new-category-actions"><button type="button" class="secondary-button compact" id="newCategoryCancel">Annuler</button><button type="button" class="primary-button compact" id="newCategorySave">Ajouter</button></div>
+      </div>
+    </div>
+    <label>Montant (DA) <span class="req" title="Obligatoire" aria-hidden="true">*</span><input type="number" id="transactionAmount" min="1" step="0.01" required placeholder="Ex. 2500 (courses de la semaine)"></label>
+    <label>Date <span class="req" title="Obligatoire" aria-hidden="true">*</span><input type="date" id="transactionDate" required></label>
+    <label>Description <small class="opt">(facultatif)</small><input type="text" id="transactionDescription" maxlength="100" placeholder="Ex. Courses au supermarché"></label>
+    <p class="form-legend"><span class="req" aria-hidden="true">*</span> Champ obligatoire · <span class="opt">(facultatif)</span> : peut rester vide</p>
+    <p class="form-error" id="transactionError" role="alert"></p>
+    <div class="modal-actions"><button type="button" class="secondary-button" data-close="transactionDialog">Annuler</button><button type="submit" class="primary-button">Enregistrer</button></div>
+  </form></dialog>
+
+  <!-- Objectif épargne -->
+  <dialog class="modal" id="goalDialog"><form id="goalForm" method="dialog">
+    <input type="hidden" id="goalEditId">
+    <div class="modal-heading"><div><h2 id="goalDialogTitle">Créer un objectif d’épargne</h2></div><button type="button" class="close-button" data-close="goalDialog" aria-label="Fermer"><i data-lucide="x"></i></button></div>
+    <label>Nom de l’objectif <span class="req" title="Obligatoire" aria-hidden="true">*</span><input id="goalName" required maxlength="60" placeholder="Ex. Voyage à Istanbul"></label>
+    <div class="field-group">
+      <span class="field-label" id="goalCategoryPickerLabel">Catégorie <small class="opt">(facultatif)</small></span>
+      <input type="hidden" id="goalCategory">
+      <div class="category-picker" id="goalCategoryPicker" role="radiogroup" aria-labelledby="goalCategoryPickerLabel"></div>
+      <div class="new-category" id="goalNewCategoryPanel" hidden>
+        <strong>Nouvelle catégorie</strong>
+        <div class="new-category-row">
+          <button type="button" class="icon-upload" id="goalNewCategoryIconButton" aria-label="Importer une icône" title="Importer une icône">
+            <span id="goalNewCategoryIconPreview"><i data-lucide="image-plus"></i></span>
+          </button>
+          <input type="text" id="goalNewCategoryName" maxlength="24" placeholder="Ex. Vacances" aria-label="Nom de la catégorie (obligatoire)">
+        </div>
+        <input type="file" id="goalNewCategoryIconFile" accept="image/*" hidden>
+        <small class="field-hint">Importez une image (PNG, JPG, SVG…) comme icône.</small>
+        <div class="new-category-actions">
+          <button type="button" class="secondary-button compact" id="goalNewCategoryCancel">Annuler</button>
+          <button type="button" class="primary-button compact" id="goalNewCategorySave">Ajouter</button>
+        </div>
+      </div>
+    </div>
+    <label>Montant cible (DA) <span class="req" title="Obligatoire" aria-hidden="true">*</span><input id="goalTarget" type="number" min="1" step="1" required placeholder="Ex. 150000 (prix du voyage)"></label>
+    <div id="goalCreateOnlyFields">
+      <label>Montant réservé initial (DA) <small class="opt">(facultatif)</small><input id="goalInitialSaved" type="number" min="0" step="1" placeholder="Ex. 15000 (déjà mis de côté)"></label>
+      <label>Date de l’épargne <small class="opt">(facultatif)</small><input id="goalSavingDate" type="date"></label>
+      <small class="field-hint">Date du montant réservé initial. Laissez vide pour utiliser aujourd’hui.</small>
+    </div>
+    <label>Description <small class="opt">(facultatif)</small><input id="goalDescription" type="text" maxlength="100" placeholder="Ex. Économies pour les vacances d’été"></label>
+    <label>Date limite <small class="opt">(facultatif — déclenche une alerte)</small><input id="goalDeadline" type="date"></label>
+    <small class="field-hint" id="goalUnallocatedHint"></small>
+    <p class="form-legend"><span class="req" aria-hidden="true">*</span> Champ obligatoire · <span class="opt">(facultatif)</span> : peut rester vide</p>
+    <div class="modal-actions"><button type="button" class="secondary-button" data-close="goalDialog">Annuler</button><button type="submit" class="primary-button" id="goalSubmitButton">Créer l’objectif</button></div>
+  </form></dialog>
+
+  <!-- Dépôt / retrait -->
+  <dialog class="modal" id="goalMovementDialog"><form id="goalMovementForm" method="dialog">
+    <div class="modal-heading"><div><h2 id="goalMovementTitle">Ajouter de l’argent</h2></div><button type="button" class="close-button" data-close="goalMovementDialog" aria-label="Fermer"><i data-lucide="x"></i></button></div>
+    <input type="hidden" id="movementGoalId"><input type="hidden" id="movementType">
+    <label>Montant (DA) <span class="req" title="Obligatoire" aria-hidden="true">*</span><input id="movementAmount" type="number" min="1" step="1" required placeholder="Ex. 5000 (versement du mois)"></label>
+    <label>Date de l’épargne <small class="opt">(facultatif)</small><input id="movementDate" type="date"></label>
+    <small class="field-hint" id="goalMovementHint"></small>
+    <p class="form-legend"><span class="req" aria-hidden="true">*</span> Champ obligatoire · <span class="opt">(facultatif)</span> : peut rester vide</p>
+    <div class="modal-actions"><button type="button" class="secondary-button" data-close="goalMovementDialog">Annuler</button><button type="submit" class="primary-button">Confirmer</button></div>
+  </form></dialog>
+
+  <!-- Limite catégorie -->
+  <dialog class="modal" id="limitDialog"><form id="limitForm" method="dialog">
+    <div class="modal-heading"><div><h2>Définir une limite</h2></div><button type="button" class="close-button" data-close="limitDialog" aria-label="Fermer"><i data-lucide="x"></i></button></div>
+    <div class="field-group"><span class="field-label" id="limitCategoryLabel">Catégorie <span class="req" title="Obligatoire" aria-hidden="true">*</span></span>
+      <input type="hidden" id="limitCategory">
+      <div class="category-picker limit-picker" id="limitCategoryPicker" role="radiogroup" aria-labelledby="limitCategoryLabel"></div>
+      <small class="field-hint" id="limitCategoryChosen">Touchez l’icône de la catégorie à budgétiser.</small></div>
+    <div class="alloc-hint" id="limitRemainingBox" hidden>
+      <span id="limitRemainingText"></span>
+      <button type="button" class="table-action" id="limitUseRemaining">Utiliser tout le reste</button>
+    </div>
+    <label>Limite mensuelle (DA) <span class="req" title="Obligatoire" aria-hidden="true">*</span><input id="limitAmount" type="number" min="1" step="1" required placeholder="Ex. 20000 (alimentation du mois)"></label>
+    <p class="form-legend"><span class="req" aria-hidden="true">*</span> Champ obligatoire · <span class="opt">(facultatif)</span> : peut rester vide</p>
+    <div class="modal-actions"><button type="button" class="secondary-button" data-close="limitDialog">Annuler</button><button type="submit" class="primary-button">Enregistrer</button></div>
+  </form></dialog>
+
+  <!-- Confirmation personnalisée -->
+  <dialog class="modal custom-dialog" id="confirmDialog" aria-labelledby="confirmTitle">
+    <div class="dialog-content">
+      <div class="dialog-symbol warning-symbol"><i data-lucide="alert-triangle"></i></div>
+      <h2 id="confirmTitle">Confirmer l’action</h2>
+      <p id="confirmMessage" class="dialog-message"></p>
+      <div class="modal-actions">
+        <button type="button" class="secondary-button" id="confirmCancel">Annuler</button>
+        <button type="button" class="danger-button" id="confirmAccept">Confirmer</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Message d’information personnalisé -->
+  <dialog class="modal custom-dialog" id="messageDialog" aria-labelledby="messageTitle">
+    <div class="dialog-content">
+      <div class="dialog-symbol info-symbol"><i data-lucide="info"></i></div>
+      <h2 id="messageTitle">Information</h2>
+      <p id="messageText" class="dialog-message"></p>
+      <div class="modal-actions"><button type="button" class="primary-button" id="messageClose">Compris</button></div>
+    </div>
+  </dialog>
+
+  <dialog class="modal notif-dialog" id="notificationsDialog" aria-labelledby="notifTitle"><div class="notif-box">
+    <div class="modal-heading"><h2 id="notifTitle">Notifications</h2><button type="button" class="close-button" data-close="notificationsDialog" aria-label="Fermer"><i data-lucide="x"></i></button></div>
+    <div id="notifList" class="notif-list"></div>
+    <div class="modal-actions"><button type="button" class="secondary-button" id="notifReadAll">Tout marquer comme lu</button><button type="button" class="primary-button" data-close="notificationsDialog">Fermer</button></div>
+  </div></dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
